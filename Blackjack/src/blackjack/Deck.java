@@ -4,6 +4,7 @@
 package blackjack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Defines a deck of playing cards.  Each deck begins with 52 cards.
@@ -43,8 +44,17 @@ public class Deck {
 				cardDeck.add(new Card(value, imagePath, CARDFACES[f], SUITS[s]));
 			}
 		}
+		Collections.shuffle(cardDeck);
 		/*cardDeck.forEach(c -> {
 			System.out.print(c.getValue() + " " + c.getFace() + c.getSuit() + " " + c.getImagePath() + "\n");
 		}); // Test Line - Prints deck to console */
+	}
+	
+	/**
+	 * @return 
+	 * 
+	 */
+	public void shuffle(Hand playerHand, Hand dealerHand) {
+		
 	}
 }
