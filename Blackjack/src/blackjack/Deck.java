@@ -8,6 +8,9 @@ import java.util.Collections;
 
 /**
  * Defines a deck of playing cards.  Each deck begins with 52 cards.
+ * The deck consists of standard suits (Club, Diamond, Heart, Spades) and
+ * the usual values (2 - 10, Jack, Queen, King, Ace) for each suit.
+ * There are no jokers in the deck.
  * @author Edward Szetela
  *
  */
@@ -51,10 +54,27 @@ public class Deck {
 	}
 	
 	/**
-	 * @return 
-	 * 
+	 * Adds the cards in the player's hand and dealer's hand back in to 
+	 * the deck and shuffles the deck.
 	 */
 	public void shuffle(Hand playerHand, Hand dealerHand) {
+		cardDeck.addAll(dealerHand.getCardsInHand());
+		cardDeck.addAll(playerHand.getCardsInHand());
+		Collections.shuffle(cardDeck);
+	}
+	
+	/**
+	 * Draws the top card in the deck, which is the card at index 0.
+	 * Removes the card from the deck as it is in play.
+	 * @return the drawn Card.
+	 * @throws NullPointerException if there are no cards left in the deck.
+	 */
+	public Card drawCard() {
+		if (cardDeck.size() == 0)
+			throw new NullPointerException("The deck is out of cards.");
 		
+		Card tempCard = cardDeck.get(0);
+		cardDeck.remove(0);
+		return tempCard;
 	}
 }

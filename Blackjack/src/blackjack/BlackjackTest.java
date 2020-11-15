@@ -4,14 +4,13 @@
 package blackjack;
 
 /**
+ * Tests the classes of package blackjack for development.  
+ * Not intended for production use.
  * @author Edward Szetela
  *
  */
 public class BlackjackTest {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		Deck cardDeck = new Deck();
 
