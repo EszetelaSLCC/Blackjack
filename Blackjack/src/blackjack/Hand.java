@@ -3,6 +3,7 @@
  */
 package blackjack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,6 +11,21 @@ import java.util.List;
  *
  */
 public class Hand {
+	private int handScore;
+	private ArrayList<Card> cardsInHand;
+	
+	
+	
+	/**
+	 * @param handScore
+	 * @param cardsInHand
+	 */
+	public Hand(int handScore, ArrayList<Card> cardsInHand) {
+		this.handScore = handScore;
+		this.cardsInHand.addAll(cardsInHand);
+	}
+
+
 
 	/**
 	 * @return 
