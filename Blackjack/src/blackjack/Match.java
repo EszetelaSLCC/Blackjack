@@ -3,8 +3,6 @@
  */
 package blackjack;
 
-import java.security.InvalidAlgorithmParameterException;
-
 /**
  * Defines a match of the game blackjack.  This class
  * includes the logic determining the game state and who is the winner.
@@ -38,12 +36,12 @@ public class Match {
 	 * Returns the gamestate.
 	 * @param dealerHand the dealer's current hand.
 	 * @param playerHand the player's current hand.
-	 * @throws InvalidAlgorithmParameterException if the game state is not a valid game state.
+	 * @throws IllegalStateException if the game state is not a valid game state.
 	 */
-	public GameState update(Hand dealerHand, Hand playerHand) throws InvalidAlgorithmParameterException {
+	public GameState update(Hand dealerHand, Hand playerHand) {
 		// Check for invalid low score
 		if (dealerHand.getHandScore() < 2 || playerHand.getHandScore() < 2)
-			throw new InvalidAlgorithmParameterException("Invalid score.  Too low for hand of at least two cards.");
+			throw new IllegalStateException("Invalid score.  Too low for hand of at least two cards.");
 		// Check for blackjacks
 		if (dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) 
 			// Dealer has blackjack.  Check for player blackjack.
@@ -65,7 +63,7 @@ public class Match {
 		// Check for busts
 		if (playerHand.getHandScore() > 21 && dealerHand.getHandScore() > 21)
 			// Double bust.  Not a valid game state.  Throw error.
-			throw new InvalidAlgorithmParameterException("Double bust.  Not a valid game state.");
+			throw new IllegalStateException("Double bust.  Not a valid game state.");
 		if (playerHand.getHandScore() > 21) {
 			// Player busts.
 			gamestate = GameState.LOSE_PLAYER_BUSTS;
