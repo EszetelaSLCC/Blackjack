@@ -21,4 +21,20 @@ public class Hand {
 		
 	}
 
+	/**
+	 * 
+	 */
+	public void addCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @return
+	 */
+	public int getHandScore() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
