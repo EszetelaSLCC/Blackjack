@@ -15,20 +15,11 @@ public class Match {
 
 	/**
 	 * Initializes a match of blackjack.  Matches always start with gamestate 
-	 * DEAL.  
-	 * Creates two hands, one for the player and one for the dealer.
+	 * PLAYING.
 	 * @param gamestate
 	 */
 	public Match() {
-		this.gamestate = GameState.DEAL;
-		Hand dealerHand = new Hand();
-		Hand playerHand = new Hand();
-		
-		for (int i = 1; i < 3; i++) {
-			dealerHand.addCard();
-			playerHand.addCard();
-		}
-		
+		this.gamestate = GameState.PLAYING;
 	}
 	
 	/**
@@ -41,42 +32,42 @@ public class Match {
 	public GameState update(Hand dealerHand, Hand playerHand) {
 		// Check for invalid low score
 		if (dealerHand.getHandScore() < 2 || playerHand.getHandScore() < 2)
-			throw new IllegalStateException("Invalid score.  Too low for hand of at least two cards.");
-		// Check for blackjacks
-		if (dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) 
-			// Dealer has blackjack.  Check for player blackjack.
-			if (playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21) {
-				// Double blackjack on the deal.  Very rare.
-				gamestate = GameState.PUSH_BLACKJACK;
-				return GameState.PUSH_BLACKJACK;
-			}
-			else {
-				// Dealer blackjack with no player blackjack.  Dealer wins.
-				gamestate = GameState.LOSE_DEALER_BLACKJACK;
-				return GameState.LOSE_DEALER_BLACKJACK;
-			}
-		if (playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21) {
-			// Player has blackjack.  Already checked for dealer blackjack so player wins.
-			gamestate = GameState.WIN_PLAYER_BLACKJACK;
-			return GameState.WIN_PLAYER_BLACKJACK;
-		}
-		// Check for busts
+			throw new IllegalStateException("Invalid score.  Too low for hand of at least one card.");
+		// Check for invalid double bust
 		if (playerHand.getHandScore() > 21 && dealerHand.getHandScore() > 21)
-			// Double bust.  Not a valid game state.  Throw error.
 			throw new IllegalStateException("Double bust.  Not a valid game state.");
-		if (playerHand.getHandScore() > 21) {
+		// Check for blackjacks
+		if ((dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) ||
+				(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21)) {
+			// At least one blackjack exists.  Game is over.  Evaluate who won.
+			if ((dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) &&
+					(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21))
+				// Double blackjack.  Very rare.
+				gamestate = GameState.PUSH_BLACKJACK;
+			if ((dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) &&
+					!(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21))
+				// Dealer has blackjack, player does not.  Dealer wins.
+				gamestate = GameState.LOSE_DEALER_BLACKJACK;
+			if (!(dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) &&
+					(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21))
+				// Dealer does not have blackjack, player does.  Player wins.
+				gamestate = GameState.WIN_PLAYER_BLACKJACK;
+		}
+		// Check for busts.
+		else if (playerHand.getHandScore() > 21 || dealerHand.getHandScore() > 21) {
+			// At least one bust exists.  Game is over.  Evaluate who won.
+			if (playerHand.getHandScore() > 21)
 			// Player busts.
 			gamestate = GameState.LOSE_PLAYER_BUSTS;
-			return GameState.LOSE_PLAYER_BUSTS;
-		}
-		if (dealerHand.getHandScore() > 21) {
+			if (dealerHand.getHandScore() > 21) 
 			// Dealer busts.
 			gamestate = GameState.WIN_DEALER_BUSTS;
-			return GameState.WIN_DEALER_BUSTS;
 		}
+		else
 		// Checked all end states.  Game continues.
 		gamestate = GameState.PLAYING;
-		return GameState.PLAYING;
+		
+		return gamestate;
 	}
 
 	/**

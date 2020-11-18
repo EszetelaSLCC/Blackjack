@@ -18,7 +18,6 @@ public enum GameState {
 	// LOSE_PLAYER_LOWER_SCORE,
 	WIN_DEALER_BUSTS,
 	// WIN_DEALER_LOWER_SCORE,
-	DEAL,
 	PLAYING
 
 }
