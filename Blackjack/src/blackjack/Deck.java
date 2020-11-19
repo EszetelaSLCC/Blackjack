@@ -48,9 +48,6 @@ public class Deck {
 			}
 		}
 		Collections.shuffle(cardDeck);
-		/*cardDeck.forEach(c -> {
-			System.out.print(c.getValue() + " " + c.getFace() + c.getSuit() + " " + c.getImagePath() + "\n");
-		}); // Test Line - Prints deck to console */
 	}
 	
 	/**
@@ -76,5 +73,16 @@ public class Deck {
 		Card tempCard = cardDeck.get(0);
 		cardDeck.remove(0);
 		return tempCard;
+	}
+
+	/**
+	 * Prints a test output of the card deck.  Each card will be printed on a separate
+	 * line then the number of cards will be printed.
+	 */
+	public void printDeck() {
+		cardDeck.forEach(c -> {
+			System.out.print(c + "\n");
+		}); 
+		System.out.println("Number of cards: " + cardDeck.size());
 	}
 }

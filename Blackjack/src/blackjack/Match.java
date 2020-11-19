@@ -11,22 +11,23 @@ package blackjack;
  */
 public class Match {
 
-	private GameState gamestate;
+	private GameState gameState;
 
 	/**
-	 * Initializes a match of blackjack.  Matches always start with gamestate 
-	 * PLAYING.
-	 * @param gamestate
+	 * Initializes a match of blackjack.  Matches always start with gamestate PLAYING.
+	 * @param gameState
 	 */
 	public Match() {
-		this.gamestate = GameState.PLAYING;
+		this.gameState = GameState.PLAYING;
 	}
 	
 	/**
 	 * Updates the gamestate from the two passed in hands of cards.
-	 * Returns the gamestate.
+	 * Evaluates according to standard blackjack rules where two cards totaling 21 (ace and 10/face card)
+	 * is blackjack.  Point value over 21 is bust.
 	 * @param dealerHand the dealer's current hand.
 	 * @param playerHand the player's current hand.
+	 * @return the updated gamestate.
 	 * @throws IllegalStateException if the game state is not a valid game state.
 	 */
 	public GameState update(Hand dealerHand, Hand playerHand) {
@@ -43,31 +44,31 @@ public class Match {
 			if ((dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) &&
 					(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21))
 				// Double blackjack.  Very rare.
-				gamestate = GameState.PUSH_BLACKJACK;
+				gameState = GameState.PUSH_BLACKJACK;
 			if ((dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) &&
 					!(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21))
 				// Dealer has blackjack, player does not.  Dealer wins.
-				gamestate = GameState.LOSE_DEALER_BLACKJACK;
+				gameState = GameState.LOSE_DEALER_BLACKJACK;
 			if (!(dealerHand.getCardsInHand().size() == 2 && dealerHand.getHandScore() == 21) &&
 					(playerHand.getCardsInHand().size() == 2 && playerHand.getHandScore() == 21))
 				// Dealer does not have blackjack, player does.  Player wins.
-				gamestate = GameState.WIN_PLAYER_BLACKJACK;
+				gameState = GameState.WIN_PLAYER_BLACKJACK;
 		}
 		// Check for busts.
 		else if (playerHand.getHandScore() > 21 || dealerHand.getHandScore() > 21) {
 			// At least one bust exists.  Game is over.  Evaluate who won.
 			if (playerHand.getHandScore() > 21)
 			// Player busts.
-			gamestate = GameState.LOSE_PLAYER_BUSTS;
+			gameState = GameState.LOSE_PLAYER_BUSTS;
 			if (dealerHand.getHandScore() > 21) 
 			// Dealer busts.
-			gamestate = GameState.WIN_DEALER_BUSTS;
+			gameState = GameState.WIN_DEALER_BUSTS;
 		}
 		else
 		// Checked all end states.  Game continues.
-		gamestate = GameState.PLAYING;
+		gameState = GameState.PLAYING;
 		
-		return gamestate;
+		return gameState;
 	}
 
 	/**
@@ -75,6 +76,6 @@ public class Match {
 	 * @return the gamestate
 	 */
 	public GameState getGamestate() {
-		return gamestate;
+		return gameState;
 	}
 }
