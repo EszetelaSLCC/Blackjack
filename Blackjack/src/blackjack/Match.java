@@ -30,7 +30,7 @@ public class Match {
 	 * @return the updated gamestate.
 	 * @throws IllegalStateException if the game state is not a valid game state.
 	 */
-	public GameState update(Hand dealerHand, Hand playerHand) {
+	public GameState update(Hand dealerHand, Hand playerHand, boolean playerStand) {
 		// Check for invalid low score
 		if (dealerHand.getHandScore() < 2 || playerHand.getHandScore() < 2)
 			throw new IllegalStateException("Invalid score.  Too low for hand of at least one card.");
@@ -64,8 +64,20 @@ public class Match {
 			// Dealer busts.
 			gameState = GameState.WIN_DEALER_BUSTS;
 		}
-		else
+		else if (playerStand)
+			// Player standing.  Dealer logic.
+			if (dealerHand.getHandScore() >= 18)
+				// Dealer standing.  Game over.  Evaluate who won.
+				if (playerHand.getHandScore() == dealerHand.getHandScore())
+					gameState = GameState.PUSH;
+				else if (playerHand.getHandScore() > dealerHand.getHandScore())
+					gameState = GameState.WIN_DEALER_LOWER_SCORE;
+				else if (playerHand.getHandScore() < dealerHand.getHandScore())
+					gameState = GameState.LOSE_PLAYER_LOWER_SCORE;
+				
+		else if (playerHand.getHandScore() > dealerHand.getHandScore())
 		// Checked all end states.  Game continues.
+		
 		gameState = GameState.PLAYING;
 		
 		return gameState;
