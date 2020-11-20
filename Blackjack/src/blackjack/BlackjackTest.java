@@ -1,6 +1,3 @@
-/**
- * 
- */
 package blackjack;
 
 /**
@@ -13,7 +10,8 @@ public class BlackjackTest {
 
 	public static void main(String[] args) {
 		Deck cardDeck = new Deck();
-
+		cardDeck.printDeck();
+		
 	}
 
 }

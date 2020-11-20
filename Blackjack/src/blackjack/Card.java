@@ -60,4 +60,12 @@ public class Card {
 	public String getSuit() {
 		return suit;
 	}
+
+	/**
+	 * Returns a string representation of the playing card.  
+	 */
+	@Override
+	public String toString() {
+		return "Card " + face + " of " + suit + ", value=" + value + ", imagePath=" + imagePath;
+	}
 }
