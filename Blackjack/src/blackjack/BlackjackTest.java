@@ -17,6 +17,9 @@ public class BlackjackTest {
 		Deck cardDeck = new Deck();
 		@SuppressWarnings("resource")
 		Scanner input = new Scanner(System.in);
+		boolean continueGame = false;
+		// Player's bank, starting at 10 points.
+		double playerBank = 10.0;
 		
 		// Loop while player wants to keep playing new hands
 		do {
@@ -114,13 +117,41 @@ public class BlackjackTest {
 					System.out.println(state + "\n");
 				} while (state == GameState.PLAYING);
 			}
-	
+			// Change points in player's bank from game outcome.  Blackjack pays 1.5 times bet,
+			// other wins pay same as bet of 1 point, losses all lose bet of 1 point.
+			// Dealer blackjack is just a normal loss.
+			switch (state) {
+			case WIN_PLAYER_BLACKJACK:
+				playerBank += 1.5;
+				break;
+			case WIN_DEALER_BUSTS:
+			case WIN_DEALER_LOWER_SCORE:
+				playerBank += 1.0;
+				break;
+			case LOSE_DEALER_BLACKJACK:
+			case LOSE_PLAYER_BUSTS:
+			case LOSE_PLAYER_LOWER_SCORE:
+				playerBank -= 1.0;
+				break;
+			}
+			System.out.printf("Your current bank: %.1f\n",playerBank);
+			
 			// Shuffle cards back into deck for next hand.
 			cardDeck.shuffle(playerHand, dealerHand);
 			
-			// Ask player if they want to break out of outer loop and end program.
-			System.out.println("Another hand of blackjack? 1 for yes, 2 for no.");
-		} while (input.nextInt() == 1);
+			if (playerBank <= 0) {
+				System.out.println("You're bankrupt.  Better luck next time.");
+				continueGame = false;
+			}
+			else {
+				// Ask player if they want to break out of outer loop and end program.
+				System.out.println("Another hand of blackjack? 1 for yes, 2 for no.");
+				if (input.nextInt() == 1)
+					continueGame = true;
+				else
+					continueGame = false;
+			}
+		} while (continueGame);
 	}
 
 	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
