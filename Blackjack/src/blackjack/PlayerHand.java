@@ -1,11 +1,11 @@
 package blackjack;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerHand extends Hand {
 
-	public PlayerHand(int handScore, ArrayList<Card> cardsInHand) {
-		super(handScore, cardsInHand);
+	public PlayerHand(int handScore, List<Card> playerInitialHand) {
+		super(handScore, playerInitialHand);
 		// TODO Auto-generated constructor stub
 	}
 

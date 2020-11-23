@@ -1,6 +1,7 @@
 package blackjack;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -24,8 +25,8 @@ public class BlackjackTest {
 		// Loop while player wants to keep playing new hands
 		do {
 			// Declare game variables, new for each hand played
-			ArrayList<Card> playerInitialHand = new ArrayList<>();
-			ArrayList<Card> dealerInitialHand = new ArrayList<>();
+			List<Card> playerInitialHand = new ArrayList<>();
+			List<Card> dealerInitialHand = new ArrayList<>();
 	
 			Match gameMatch = new Match();
 			GameState state;
@@ -43,20 +44,15 @@ public class BlackjackTest {
 			// If blackjack, show all cards as game is over
 			if (state == GameState.LOSE_DEALER_BLACKJACK || state == GameState.PUSH_BLACKJACK 
 					|| state == GameState.WIN_PLAYER_BLACKJACK) {
-				System.out.println("playerHandScore: " + playerHand.getHandScore());
-				playerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+				printPlayerHand(playerHand);
 		
-				System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-				dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+				printFullDealerHand(dealerHand);
 			}
 			// No blackjack, show player cards and dealer's first card only until player stands
 			else {
-				System.out.println("playerHandScore: " + playerHand.getHandScore());
-				playerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+				printPlayerHand(playerHand);
 		
-				System.out.println("dealerHandScore hidden");
-				System.out.println(dealerHand.getCardsInHand().get(0).getFace() + 
-						dealerHand.getCardsInHand().get(0).getSuit());
+				printHiddenDealerHand(dealerHand);
 			}
 			// Print game state for testing
 			System.out.println(state);
@@ -84,21 +80,14 @@ public class BlackjackTest {
 						playerStanding = true;
 					}
 					
-					// Show player cards and score
-					System.out.println("playerHandScore: " + playerHand.getHandScore());
-					playerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+					printPlayerHand(playerHand);
 		
 					if (!playerStanding) {
-						// player not standing, show only one dealer card.  Dealer takes no action yet.
-						System.out.println("dealerHandScore hidden");
-						System.out.println(dealerHand.getCardsInHand().get(0).getFace() + 
-								dealerHand.getCardsInHand().get(0).getSuit());
+						printHiddenDealerHand(dealerHand);
 					}
 					
 					if (playerStanding) {
-						// player standing, show dealer cards and score.  Dealer hits according to rules.
-						System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-						dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+						printFullDealerHand(dealerHand);
 						if (dealerHand.getHandScore() < 18) {
 							// Dealer needs to hit, start dealer hit loop until 18 or over
 							do {
@@ -106,8 +95,7 @@ public class BlackjackTest {
 								Thread.sleep(2000);
 								Card dealerCard = cardDeck.drawCard();
 								dealerHand.addCard(dealerCard);
-								System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-								dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+								printFullDealerHand(dealerHand);
 							} while (dealerHand.getHandScore() < 18);
 						}
 					}
@@ -133,6 +121,9 @@ public class BlackjackTest {
 			case LOSE_PLAYER_LOWER_SCORE:
 				playerBank -= 1.0;
 				break;
+			default:
+				// Push, push blackjack, or God forbid, playing, all leave points alone.
+				break;
 			}
 			System.out.printf("Your current bank: %.1f\n",playerBank);
 			
@@ -154,9 +145,25 @@ public class BlackjackTest {
 		} while (continueGame);
 	}
 
-	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
+	private static void printHiddenDealerHand(Hand dealerHand) {
+		System.out.println("dealerHandScore hidden");
+		System.out.println(dealerHand.getCardsInHand().get(0).getFace() + 
+				dealerHand.getCardsInHand().get(0).getSuit());
+	}
+
+	private static void printFullDealerHand(Hand dealerHand) {
+		System.out.println("dealerHandScore: " + dealerHand.getHandScore());
+		dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+	}
+
+	private static void printPlayerHand(Hand playerHand) {
+		System.out.println("playerHandScore: " + playerHand.getHandScore());
+		playerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+	}
+
+	private static void dealHand(Deck cardDeck, List<Card> playerInitialHand) {
 		for (int i = 0; i < 2; i++) {
-			hand.add(cardDeck.drawCard());
+			playerInitialHand.add(cardDeck.drawCard());
 		}
 	}
 }

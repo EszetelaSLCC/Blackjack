@@ -1,7 +1,6 @@
 package blackjack;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,9 +15,9 @@ public class Hand {
 
 
 
-	public Hand(int handScore, ArrayList<Card> cardsInHand) {
+	public Hand(int handScore, List<Card> playerInitialHand) {
 		this.handScore = handScore;
-		ArrayList<Card> passedCards = new ArrayList<>(cardsInHand);
+		ArrayList<Card> passedCards = new ArrayList<>(playerInitialHand);
 		this.cardsInHand = passedCards;
 
 		calculateHandScore();
