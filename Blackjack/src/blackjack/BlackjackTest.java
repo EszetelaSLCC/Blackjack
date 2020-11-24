@@ -32,7 +32,7 @@ public class BlackjackTest {
 			dealHand(cardDeck, dealerInitialHand);
 			
 			Hand playerHand = new PlayerHand(0, playerInitialHand);
-			Hand dealerHand = new DealerHand(0, dealerInitialHand);
+			DealerHand dealerHand = new DealerHand(0, dealerInitialHand);
 			
 			// Check game state on deal for blackjacks
 			state = gameMatch.update(dealerHand, playerHand, false);
@@ -96,16 +96,14 @@ public class BlackjackTest {
 						// player standing, show dealer cards and score.  Dealer hits according to rules.
 						System.out.println("dealerHandScore: " + dealerHand.getHandScore());
 						dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
-						if (dealerHand.getHandScore() < 18) {
+						while (dealerHand.dealerCanHit()) { //dealerHand.getHandScore() < 18
 							// Dealer needs to hit, start dealer hit loop until 18 or over
-							do {
-								System.out.println("Dealer hitting...");
-								Thread.sleep(2000);
-								Card dealerCard = cardDeck.drawCard();
-								dealerHand.addCard(dealerCard);
-								System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-								dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
-							} while (dealerHand.getHandScore() < 18);
+							System.out.println("Dealer hitting...");
+							Thread.sleep(2000);
+							Card dealerCard = cardDeck.drawCard();
+							dealerHand.addCard(dealerCard);
+							System.out.println("dealerHandScore: " + dealerHand.getHandScore());
+							dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
 						}
 					}
 				

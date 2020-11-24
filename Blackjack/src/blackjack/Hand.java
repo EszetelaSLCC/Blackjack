@@ -1,21 +1,27 @@
 package blackjack;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- *
+ * Constructs Hand instance to allow for calculating and storing score
+ * of <code>cardsInHand</code>
+ * 
  * @author Jacob Slack
- *
  */
 public class Hand {
-	private int handScore;
+	protected int handScore;
 	private ArrayList<Card> cardsInHand;
 
-
-
-
+	/**
+	 * Constructs Hand instance and initializes <code>handScore</code> and
+	 * <code>cardsInHand</code>. Calls to <code>calculateHandScore()</code>
+	 * to calculate initial <code>handScore</code> from list of 2 cards passed
+	 * in during call to constructor.
+	 * 
+	 * @param handScore - int 
+	 * @param cardsInHand - ArrayList<Card>
+	 */
 	public Hand(int handScore, ArrayList<Card> cardsInHand) {
 		this.handScore = handScore;
 		ArrayList<Card> passedCards = new ArrayList<>(cardsInHand);
@@ -25,12 +31,15 @@ public class Hand {
 	}
 
 	/**
-	 *
-	 * @return
-	 *
+	 * Returns the list of cards in the hand for which the method is called.
+	 * @return cardsInHand - List<Card>
 	 */
 	public List<Card> getCardsInHand() {
 		return cardsInHand;
+	}
+	
+	public Card getCardFromHandByIndex(int index) {
+		return cardsInHand.get(index);
 	}
 
 	/**
@@ -46,15 +55,14 @@ public class Hand {
 	/**
 	 * Returns current score of the cards in <code>cardsInHand</code>
 	 * for the Hand instance for which it was called.
-	 *
 	 * @return int handScore
 	 */
 	public int getHandScore() {
 		return handScore;
 	}
 
-	private void calculateHandScore() {
-		int fixedCardsScore = 0;
+	protected void calculateHandScore() {
+		handScore = 0;
 		int acesInHand = 0;
 
 		for (int i = 0; i < cardsInHand.size(); i++) {
@@ -62,12 +70,9 @@ public class Hand {
 				acesInHand++;
 			}
 			else {
-				fixedCardsScore += cardsInHand.get(i).getValue();
+				handScore += cardsInHand.get(i).getValue();
 			}
-
 		}
-
-		handScore = fixedCardsScore;
 
 		for (int i = 0; i < acesInHand; i++) {
 			if ((handScore + 11) > 21) {
@@ -78,6 +83,17 @@ public class Hand {
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		cardsInHand.forEach(c -> sb.append(c.getFace() + c.getSuit() + " "));
+		sb.append(" score: " + handScore);
+		return sb.toString();
+	}
+	
+	
 
 
 }
