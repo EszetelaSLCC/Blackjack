@@ -1,5 +1,10 @@
 package blackjack;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -17,6 +22,7 @@ public class BlackjackTest {
 		Deck cardDeck = new Deck();
 		@SuppressWarnings("resource")
 		Scanner input = new Scanner(System.in);
+		double playerBank = 10.0;
 		
 		// Loop while player wants to keep playing new hands
 		do {
@@ -116,9 +122,52 @@ public class BlackjackTest {
 			// Shuffle cards back into deck for next hand.
 			cardDeck.shuffle(playerHand, dealerHand);
 			
+			// Update playerBank depending on results of game
+			switch (state) {
+			case WIN_PLAYER_BLACKJACK:
+				playerBank += 1.5;
+				break;
+			case LOSE_DEALER_BLACKJACK:
+			case LOSE_PLAYER_BUSTS:
+			case LOSE_PLAYER_LOWER_SCORE:
+				playerBank -= 1;
+				break;
+			case WIN_DEALER_BUSTS:
+			case WIN_DEALER_LOWER_SCORE:
+				playerBank += 1;
+				break;
+			default:
+				break;
+			}
+			
 			// Ask player if they want to break out of outer loop and end program.
 			System.out.println("Another hand of blackjack? 1 for yes, 2 for no.");
 		} while (input.nextInt() == 1);
+	
+		// Write highscore file
+		File highScore = new File("src/blackjack/resources/highscore.txt");
+		if (highScore.exists()) {
+			// File exists.  Append new score.
+			try (FileWriter writer = new FileWriter(highScore, true); BufferedWriter bw = new BufferedWriter(writer)) {
+				bw.write("Player 1 score : " + playerBank);
+				bw.newLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			// File does not exist.  Create.
+			try (PrintWriter writer = new PrintWriter(highScore); BufferedWriter bw = new BufferedWriter(writer)) {
+				bw.write("High Scores");
+				bw.newLine();
+				bw.write("-------------");
+				bw.newLine();
+				bw.write("Player 1 score : " + playerBank);
+				bw.newLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
