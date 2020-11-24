@@ -9,6 +9,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
+
 import java.awt.GridLayout;
 import javax.swing.ImageIcon;
 import javax.swing.border.LineBorder;
@@ -214,7 +216,7 @@ public class BlackjackGui extends JFrame {
 		lblIndicatorText.setBackground(new Color(0, 128, 0));
 		return lblIndicatorText;
 	}
-
+	
 	private JButton createStandButton() {
 		JButton btnStand = new JButton("STAND");
 		btnStand.addActionListener(new ActionListener() {
@@ -229,21 +231,10 @@ public class BlackjackGui extends JFrame {
 					System.out.println("dealerHandScore: " + dealerHand.getHandScore());
 					dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
 					updateDealerHandGui();
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
 					while (dealerHand.dealerCanHit()) { //dealerHand.getHandScore() < 18
 						// Dealer needs to hit, start dealer hit loop until 18 or over
 						// update indicator text here
 						System.out.println("Dealer hitting...");
-						try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
-						}
 						Card dealerCard = cardDeck.drawCard();
 						dealerHand.addCard(dealerCard);
 						updateDealerHandGui();
