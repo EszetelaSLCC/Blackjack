@@ -11,16 +11,20 @@ import java.awt.Font;
 import javax.swing.SwingConstants;
 import java.awt.GridLayout;
 import javax.swing.ImageIcon;
-import javax.swing.border.LineBorder;
-
 import java.awt.Color;
-import java.awt.FlowLayout;
 import javax.swing.JButton;
-import javax.swing.UIManager;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.awt.event.ActionEvent;
 
+/**
+ * Class for Blackjack game interface and methods.
+ * 
+ * @author Jacob Slack
+ *
+ */
+@SuppressWarnings("serial")
 public class BlackjackGui extends JFrame {
 
 	private JPanel contentPane;
@@ -39,8 +43,10 @@ public class BlackjackGui extends JFrame {
 	private JLabel lblDealerCardFourth;
 	private JLabel lblDealerCardFifth;
 	private JLabel lblDealerCardSixth;
+	private ArrayList<JLabel> dealerCardLabels = new ArrayList<>();
 	private JButton btnDeal;
 	private static Deck cardDeck = new Deck();
+	private int playerBank = 10;
 	
 	// Declare game variables, new for each hand played
 	private static ArrayList<Card> playerInitialHand = new ArrayList<>();
@@ -48,6 +54,7 @@ public class BlackjackGui extends JFrame {
 	private Hand playerHand;
 	private DealerHand dealerHand;
 	private Match gameMatch;
+	private JLabel lblCurrentBankCount;
 
 	/**
 	 * Launch the application.
@@ -64,17 +71,10 @@ public class BlackjackGui extends JFrame {
 			}
 		});
 		
-//		Match gameMatch = new Match();
-//		GameState state;  //might be able to pull this out as we are initiating a match with each click of Deal and Match has a gameState field that is updated and there is a getGameState method.
-		
-		// Deal initial hands
-		dealHand(cardDeck, playerInitialHand);
-		dealHand(cardDeck, dealerInitialHand);
-		
 	}
 
 	/**
-	 * Create the frame.
+	 * Constructs the Blackjack game interface for intial game state.
 	 */
 	public BlackjackGui() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,6 +95,10 @@ public class BlackjackGui extends JFrame {
 
 		JPanel gameTablePanel = createGamePanelComponents();
 		contentPane.add(gameTablePanel, BorderLayout.CENTER);
+		
+		Collections.addAll(dealerCardLabels, lblDealerCardFirst, lblDealerCardSecond,
+				lblDealerCardThird, lblDealerCardFourth, lblDealerCardFifth, lblDealerCardSixth
+				);
 	}
 
 	private JPanel createGamePanelComponents() {
@@ -219,38 +223,19 @@ public class BlackjackGui extends JFrame {
 		JButton btnStand = new JButton("STAND");
 		btnStand.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// show dealer cards
-				// reveal dealer score
-				// dealer hit loop based on score (see: BlackJackTest:95)
-				// if dealer is hitting, update indicator text to "	Dealer is hitting..."
-				// sleeps between dealer actions
-				
-					// player standing, show dealer cards and score.  Dealer hits according to rules.
-					System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-					dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
+				updateDealerHandGui();
+
+				while (dealerHand.dealerCanHit()) { 
+					Card dealerCard = cardDeck.drawCard();
+					dealerHand.addCard(dealerCard);
+					
+					// sets ImageIcon for newly drawn card in dealer's hand
 					updateDealerHandGui();
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
-					while (dealerHand.dealerCanHit()) { //dealerHand.getHandScore() < 18
-						// Dealer needs to hit, start dealer hit loop until 18 or over
-						// update indicator text here
-						System.out.println("Dealer hitting...");
-						try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
-						}
-						Card dealerCard = cardDeck.drawCard();
-						dealerHand.addCard(dealerCard);
-						updateDealerHandGui();
-						System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-						dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
-					}
-					updateGuiGameState();
+				}
+				
+				gameMatch.update(dealerHand, playerHand, true);
+				updateGuiGameState();
+					
 			}
 
 			private void updateDealerHandGui() {
@@ -288,13 +273,24 @@ public class BlackjackGui extends JFrame {
 		JButton btnDeal = new JButton("DEAL");
 		btnDeal.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				// clears the initial array lists that are used to construct a hand so that we can populate them with fresh cards each time new game starts.
+				playerInitialHand.clear();
+				dealerInitialHand.clear();
+				
+				// populates initial array lists with new cards so array lists can be passed as args to Hand constructors.
+				dealHand(cardDeck, playerInitialHand);
+				dealHand(cardDeck, dealerInitialHand);
+				
+				playerHand = new PlayerHand(0, playerInitialHand);
+				dealerHand = new DealerHand(0, dealerInitialHand);
+				
+				// resets images for the cards in dealer and player hands in gui to match table and appear empty again.
+				resetHandsGui();
+				
 				lblIndicatorText.setText("Game Begins!");
 				btnDeal.setEnabled(false);
 				btnDeal.setVisible(false);
-				btnStand.setEnabled(true);
-				btnStand.setVisible(true);
-				btnHit.setEnabled(true);
-				btnHit.setVisible(true);
+				toggleHitAndStandVisibility(true);
 				
 				startMatch();
 				
@@ -305,27 +301,7 @@ public class BlackjackGui extends JFrame {
 	}
 
 	protected void startMatch() {
-//		Deck cardDeck = new Deck();
-//		
-//		// Declare game variables, new for each hand played
-//		ArrayList<Card> playerInitialHand = new ArrayList<>();
-//		ArrayList<Card> dealerInitialHand = new ArrayList<>();
-
 		gameMatch = new Match();
-		
-		
-//		// Deal initial hands
-//		dealHand(cardDeck, playerInitialHand);
-//		dealHand(cardDeck, dealerInitialHand);
-		
-		playerHand = new PlayerHand(0, playerInitialHand);
-		dealerHand = new DealerHand(0, dealerInitialHand);
-		
-		System.out.println(dealerHand);
-		System.out.println(playerHand);
-		
-		System.out.println();
-		
 		
 		// Check game state on deal for blackjacks
 		gameMatch.update(dealerHand, playerHand, false);
@@ -335,34 +311,8 @@ public class BlackjackGui extends JFrame {
 		lblPlayerCardFirst.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(0).getImagePath())));
 		lblPlayerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(1).getImagePath())));
 		
+		updateGuiGameState();
 		
-		// If blackjack, show all cards as game is over
-		if (gameMatch.getGamestate() == GameState.LOSE_DEALER_BLACKJACK || gameMatch.getGamestate() == GameState.PUSH_BLACKJACK 
-				|| gameMatch.getGamestate() == GameState.WIN_PLAYER_BLACKJACK) {
-			lblDealerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(1).getImagePath())));
-			
-			//System.out.println("playerHandScore: " + playerHand.getHandScore());
-			playerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
-	
-			//System.out.println("dealerHandScore: " + dealerHand.getHandScore());
-			dealerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
-			
-			// TODO make method to take state as param and based on state update indicator text for the blackjack(s)
-			// TODO make a method to reset card labels and button states and update bank appropriately
-		}
-		// No blackjack, show player cards and dealer's first card only until player stands
-		else {
-			System.out.println("playerHandScore: " + playerHand.getHandScore());
-			playerHand.getCardsInHand().forEach(c -> System.out.println(c.getFace() + c.getSuit()));
-	
-			System.out.println("dealerHandScore hidden");
-			System.out.println(dealerHand.getCardsInHand().get(0).getFace() + 
-					dealerHand.getCardsInHand().get(0).getSuit());
-		}
-		// Print game state for testing
-		System.out.println(gameMatch.getGamestate());
-
-		System.out.println();
 	}
 	
 	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
@@ -378,8 +328,8 @@ public class BlackjackGui extends JFrame {
 				Card cardToAdd = cardDeck.drawCard();
 				playerHand.addCard(cardToAdd);
 				gameMatch.update(dealerHand, playerHand, false);
-				updateGuiGameState();
 				updatePlayerHandGui();
+				updateGuiGameState();
 			}
 		});
 		btnHit.setVisible(false);
@@ -413,85 +363,117 @@ public class BlackjackGui extends JFrame {
 		switch (gameMatch.getGamestate()) {
 			case LOSE_DEALER_BLACKJACK:
 				lblIndicatorText.setText("Dealer has BLACKJACK! You lose!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
-				//TODO update bank
-				//TODO reset hands and deck (cardDeck.shuffle() I believe)
-				//TODO set card icons to null
-				//TODO set indicator text to "Click DEAL to play"
+				toggleHitAndStandVisibility(false);
+				revealDealerCards();
+				playerBank -= 1;
+				lblCurrentBankCount.setText(String.valueOf(playerBank));
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				//TODO reset displayed hand scores
 				break;
 			case PUSH_BLACKJACK:
 				lblIndicatorText.setText("You and Dealer have BLACKJACK! It's a push!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case PUSH:
 				lblIndicatorText.setText("It's a push");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case WIN_PLAYER_BLACKJACK:
 				lblIndicatorText.setText("You have BLACKJACK! You win!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);
+				playerBank += 2;
+				lblCurrentBankCount.setText(String.valueOf(playerBank));
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case LOSE_PLAYER_BUSTS:
 				lblIndicatorText.setText("You busted! You lose!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);	
+				playerBank -= 1;
+				lblCurrentBankCount.setText(String.valueOf(playerBank));
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case LOSE_PLAYER_LOWER_SCORE:
 				lblIndicatorText.setText("Dealer wins! You lose!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);
+				playerBank -= 1;
+				lblCurrentBankCount.setText(String.valueOf(playerBank));
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case WIN_DEALER_BUSTS:
 				lblIndicatorText.setText("Dealer busts! You win!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);
+				playerBank += 1;
+				lblCurrentBankCount.setText(String.valueOf(playerBank));
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case WIN_DEALER_LOWER_SCORE:
 				lblIndicatorText.setText("You win!");
-				btnDeal.setEnabled(true);
-				btnDeal.setVisible(true);
-				btnStand.setEnabled(false);
-				btnStand.setVisible(false);
-				btnHit.setEnabled(false);
-				btnHit.setVisible(false);
+				toggleHitAndStandVisibility(false);
+				playerBank += 1;
+				lblCurrentBankCount.setText(String.valueOf(playerBank));
+				revealDealerCards();
+				cardDeck.shuffle(playerHand, dealerHand);
+				evaluatePlayAgainOptions();
 				break;
 			case PLAYING:
 				lblIndicatorText.setText("Hit or Stand?");
 				break;
 		}
+		
+	}
+
+	private void toggleHitAndStandVisibility(boolean visible) {
+		btnStand.setEnabled(visible);
+		btnStand.setVisible(visible);
+		btnHit.setEnabled(visible);
+		btnHit.setVisible(visible);
+	}
+
+	private void evaluatePlayAgainOptions() {
+		if (playerBank > 0) {
+			btnDeal.setEnabled(true);
+			btnDeal.setVisible(true);
+			btnDeal.setText("Play Again?");
+		}
+	}
+
+	private void revealDealerCards() {
+		for (int i = 0; i < dealerHand.getCardsInHand().size(); i++) {
+			dealerCardLabels.get(i).setIcon(new ImageIcon(BlackjackGui.class.getResource(
+					"/blackjack/resources/" + dealerHand.getCardFromHandByIndex(i).getImagePath()))
+					);
+		}
+	}
+
+	private void resetHandsGui() {
+		lblDealerCardFirst.setIcon(null);
+		lblDealerCardSecond.setIcon(null);
+		lblDealerCardThird.setIcon(null);
+		lblDealerCardFourth.setIcon(null);
+		lblDealerCardFifth.setIcon(null);
+		lblDealerCardSixth.setIcon(null);
+		
+		lblPlayerCardFirst.setIcon(null);
+		lblPlayerCardSecond.setIcon(null);
+		lblPlayerCardThird.setIcon(null);
+		lblPlayerCardFourth.setIcon(null);
+		lblPlayerCardFifth.setIcon(null);
+		lblPlayerCardSixth.setIcon(null);
 		
 	}
 
@@ -674,7 +656,7 @@ public class BlackjackGui extends JFrame {
 		lblCurrentBank.setFont(new Font("Tahoma", Font.BOLD, 18));
 		lblCurrentBank.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		JLabel lblCurrentBankCount = new JLabel("10");
+		lblCurrentBankCount = new JLabel(String.valueOf(playerBank));
 		lblCurrentBankCount.setForeground(new Color(255, 255, 240));
 		bankPanel.add(lblCurrentBankCount);
 		lblCurrentBankCount.setBorder(new EmptyBorder(0, 0, 0, 0));

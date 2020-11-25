@@ -60,6 +60,10 @@ public class Deck {
 		Collections.shuffle(cardDeck);
 	}
 	
+	public int getSize() {
+		return cardDeck.size();
+	}
+	
 	/**
 	 * Draws the top card in the deck, which is the card at index 0.
 	 * Removes the card from the deck as it is in play.
