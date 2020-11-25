@@ -29,8 +29,12 @@ public class BlackjackGui extends JFrame {
 
 	private JPanel contentPane;
 	private JLabel lblIndicatorText;
+	private JLabel lblCurrentBankCount;
+	private JLabel lblDealerPanelTitle;
+	private JLabel lblPlayerPanelTitle;
 	private JButton btnStand;
 	private JButton btnHit;
+	private JButton btnDeal;
 	private JLabel lblPlayerCardFirst;
 	private JLabel lblPlayerCardSecond;
 	private JLabel lblPlayerCardThird;
@@ -44,17 +48,14 @@ public class BlackjackGui extends JFrame {
 	private JLabel lblDealerCardFifth;
 	private JLabel lblDealerCardSixth;
 	private ArrayList<JLabel> dealerCardLabels = new ArrayList<>();
-	private JButton btnDeal;
+	private ArrayList<JLabel> playerCardLabels = new ArrayList<>();
 	private static Deck cardDeck = new Deck();
 	private int playerBank = 10;
-	
-	// Declare game variables, new for each hand played
 	private static ArrayList<Card> playerInitialHand = new ArrayList<>();
 	private static ArrayList<Card> dealerInitialHand = new ArrayList<>();
 	private Hand playerHand;
 	private DealerHand dealerHand;
 	private Match gameMatch;
-	private JLabel lblCurrentBankCount;
 
 	/**
 	 * Launch the application.
@@ -99,8 +100,260 @@ public class BlackjackGui extends JFrame {
 		Collections.addAll(dealerCardLabels, lblDealerCardFirst, lblDealerCardSecond,
 				lblDealerCardThird, lblDealerCardFourth, lblDealerCardFifth, lblDealerCardSixth
 				);
+		Collections.addAll(playerCardLabels, lblPlayerCardFirst, lblPlayerCardSecond,
+				lblPlayerCardThird, lblPlayerCardFourth, lblPlayerCardFifth, lblPlayerCardSixth
+				);
 	}
 
+	private JButton createDealButton() {
+		JButton btnDeal = new JButton("DEAL");
+		btnDeal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				// clears the initial array lists that are used to construct a hand so that we can populate them with fresh cards each time new game starts.
+				playerInitialHand.clear();
+				dealerInitialHand.clear();
+				
+				// populates initial array lists with new cards so array lists can be passed as args to Hand constructors.
+				dealHand(cardDeck, playerInitialHand);
+				dealHand(cardDeck, dealerInitialHand);
+				
+				playerHand = new PlayerHand(0, playerInitialHand);
+				dealerHand = new DealerHand(0, dealerInitialHand);
+				
+				// resets images for the cards in dealer and player hands in gui to match table and appear empty again.
+				resetHandsGui();
+				
+				lblIndicatorText.setText("Game Begins!");
+				btnDeal.setEnabled(false);
+				btnDeal.setVisible(false);
+				toggleHitAndStandVisibility(true);
+				
+				startMatch();
+				
+			}
+		});
+		btnDeal.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		return btnDeal;
+	}
+
+	private JButton createHitButton() {
+		JButton btnHit = new JButton("HIT");
+		btnHit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Card cardToAdd = cardDeck.drawCard();
+				playerHand.addCard(cardToAdd);
+				gameMatch.update(dealerHand, playerHand, false);
+				updatePlayerHandGui();
+				updateGuiGameState();
+			}
+		});
+		btnHit.setVisible(false);
+		btnHit.setEnabled(false);
+		btnHit.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		return btnHit;
+	}
+	
+	private JButton createStandButton() {
+		JButton btnStand = new JButton("STAND");
+		btnStand.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateDealerHandGui();
+
+				while (dealerHand.dealerCanHit()) { 
+					Card dealerCard = cardDeck.drawCard();
+					dealerHand.addCard(dealerCard);
+					
+					// sets ImageIcon for newly drawn card in dealer's hand
+					updateDealerHandGui();
+				}
+				
+				gameMatch.update(dealerHand, playerHand, true);
+				updateGuiGameState();
+					
+			}
+
+			private void updateDealerHandGui() {
+				int cardGuiToUpdate = dealerHand.getCardsInHand().size();
+				
+				switch (cardGuiToUpdate) {
+					case 2:
+						lblDealerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(1).getImagePath())));
+						break;
+					case 3:
+						lblDealerCardThird.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(2).getImagePath())));
+						break;
+					case 4:
+						lblDealerCardFourth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(3).getImagePath())));
+						break;
+					case 5:
+						lblDealerCardFifth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(4).getImagePath())));
+						break;
+					case 6:
+						lblDealerCardSixth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(5).getImagePath())));
+						break;
+					default:
+						break;
+				}
+				
+			}
+		});
+		btnStand.setEnabled(false);
+		btnStand.setVisible(false);
+		btnStand.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		return btnStand;
+	}
+	
+	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
+		for (int i = 0; i < 2; i++) {
+			hand.add(cardDeck.drawCard());
+		}
+	}
+
+	private void startMatch() {
+		gameMatch = new Match();
+		
+		// Check game state on deal for blackjacks
+		gameMatch.update(dealerHand, playerHand, false);
+		
+		lblDealerCardFirst.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(0).getImagePath())));
+		lblDealerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/blue_back.png")));
+		lblPlayerCardFirst.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(0).getImagePath())));
+		lblPlayerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(1).getImagePath())));
+		
+		updateGuiGameState();
+		
+	}
+	
+	private void updatePlayerHandGui() {
+		int cardGuiToUpdate = playerHand.getCardsInHand().size();
+		
+		switch (cardGuiToUpdate) {
+			case 3:
+				lblPlayerCardThird.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(2).getImagePath())));
+				break;
+			case 4:
+				lblPlayerCardFourth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(3).getImagePath())));
+				break;
+			case 5:
+				lblPlayerCardFifth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(4).getImagePath())));
+				break;
+			case 6:
+				lblPlayerCardSixth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(5).getImagePath())));
+				break;
+			default:
+				break;
+		}
+	}
+	
+	private void updateGuiGameState() {
+		switch (gameMatch.getGamestate()) {
+			case LOSE_DEALER_BLACKJACK:
+				lblIndicatorText.setText("Dealer has BLACKJACK! You lose!");
+				playerBank -= 1;
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case PUSH_BLACKJACK:
+				lblIndicatorText.setText("You and Dealer have BLACKJACK! It's a push!");
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case PUSH:
+				lblIndicatorText.setText("It's a push");
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case WIN_PLAYER_BLACKJACK:
+				lblIndicatorText.setText("You have BLACKJACK! You win!");
+				playerBank += 2;
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case LOSE_PLAYER_BUSTS:
+				lblIndicatorText.setText("You busted! You lose!");
+				playerBank -= 1;
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case LOSE_PLAYER_LOWER_SCORE:
+				lblIndicatorText.setText("Dealer wins! You lose!");
+				playerBank -= 1;
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case WIN_DEALER_BUSTS:
+				lblIndicatorText.setText("Dealer busts! You win!");
+				playerBank += 1;
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case WIN_DEALER_LOWER_SCORE:
+				lblIndicatorText.setText("You win!");
+				playerBank += 1;
+				updateGuiForEndGameStates();
+				evaluatePlayAgainOptions();
+				cardDeck.shuffle(playerHand, dealerHand);
+				break;
+			case PLAYING:
+				lblIndicatorText.setText("Hit or Stand?");
+				lblDealerPanelTitle.setText("Dealer Cards - Total: ??");
+				lblPlayerPanelTitle.setText("Player Cards - Total: " + playerHand.getHandScore());
+				break;
+		}
+		
+	}
+
+	private void updateGuiForEndGameStates() {
+		toggleHitAndStandVisibility(false);
+		revealDealerCards();
+		lblCurrentBankCount.setText(String.valueOf(playerBank));
+		lblDealerPanelTitle.setText("Dealer Cards - Total: " + dealerHand.getHandScore());
+		lblPlayerPanelTitle.setText("Player Cards - Total: " + playerHand.getHandScore());
+	}
+
+	private void toggleHitAndStandVisibility(boolean visible) {
+		btnStand.setEnabled(visible);
+		btnStand.setVisible(visible);
+		btnHit.setEnabled(visible);
+		btnHit.setVisible(visible);
+	}
+
+	private void evaluatePlayAgainOptions() {
+		if (playerBank > 0) {
+			btnDeal.setEnabled(true);
+			btnDeal.setVisible(true);
+			btnDeal.setText("Play Again?");
+		}
+		else {
+			lblIndicatorText.setText("Bankrupt!!! Thanks for playing!");
+		}
+	}
+
+	private void revealDealerCards() {
+		for (int i = 0; i < dealerHand.getCardsInHand().size(); i++) {
+			dealerCardLabels.get(i).setIcon(new ImageIcon(BlackjackGui.class.getResource(
+					"/blackjack/resources/" + dealerHand.getCardFromHandByIndex(i).getImagePath()))
+					);
+		}
+	}
+
+	private void resetHandsGui() {
+		for (int i = 0; i < dealerCardLabels.size(); i++) {
+			dealerCardLabels.get(i).setIcon(null);
+		}
+		
+		for (int i = 0; i < playerCardLabels.size(); i++) {
+			playerCardLabels.get(i).setIcon(null);
+		}
+	}
+	
 	private JPanel createGamePanelComponents() {
 		JPanel gameTablePanel = createGameTablePanel();
 		
@@ -118,8 +371,7 @@ public class BlackjackGui extends JFrame {
 
 	private JPanel createGameControlPanelComponents() {
 		JPanel gameControlPanel = createGameControlPanel();
-		
-		
+			
 		JPanel gameButtonPanel = createGameButtonPanel();
 		gameControlPanel.add(gameButtonPanel);
 		
@@ -219,264 +471,6 @@ public class BlackjackGui extends JFrame {
 		return lblIndicatorText;
 	}
 
-	private JButton createStandButton() {
-		JButton btnStand = new JButton("STAND");
-		btnStand.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateDealerHandGui();
-
-				while (dealerHand.dealerCanHit()) { 
-					Card dealerCard = cardDeck.drawCard();
-					dealerHand.addCard(dealerCard);
-					
-					// sets ImageIcon for newly drawn card in dealer's hand
-					updateDealerHandGui();
-				}
-				
-				gameMatch.update(dealerHand, playerHand, true);
-				updateGuiGameState();
-					
-			}
-
-			private void updateDealerHandGui() {
-				int cardGuiToUpdate = dealerHand.getCardsInHand().size();
-				
-				switch (cardGuiToUpdate) {
-					case 2:
-						lblDealerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(1).getImagePath())));
-						break;
-					case 3:
-						lblDealerCardThird.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(2).getImagePath())));
-						break;
-					case 4:
-						lblDealerCardFourth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(3).getImagePath())));
-						break;
-					case 5:
-						lblDealerCardFifth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(4).getImagePath())));
-						break;
-					case 6:
-						lblDealerCardSixth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(5).getImagePath())));
-						break;
-					default:
-						break;
-				}
-				
-			}
-		});
-		btnStand.setEnabled(false);
-		btnStand.setVisible(false);
-		btnStand.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		return btnStand;
-	}
-
-	private JButton createDealButton() {
-		JButton btnDeal = new JButton("DEAL");
-		btnDeal.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// clears the initial array lists that are used to construct a hand so that we can populate them with fresh cards each time new game starts.
-				playerInitialHand.clear();
-				dealerInitialHand.clear();
-				
-				// populates initial array lists with new cards so array lists can be passed as args to Hand constructors.
-				dealHand(cardDeck, playerInitialHand);
-				dealHand(cardDeck, dealerInitialHand);
-				
-				playerHand = new PlayerHand(0, playerInitialHand);
-				dealerHand = new DealerHand(0, dealerInitialHand);
-				
-				// resets images for the cards in dealer and player hands in gui to match table and appear empty again.
-				resetHandsGui();
-				
-				lblIndicatorText.setText("Game Begins!");
-				btnDeal.setEnabled(false);
-				btnDeal.setVisible(false);
-				toggleHitAndStandVisibility(true);
-				
-				startMatch();
-				
-			}
-		});
-		btnDeal.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		return btnDeal;
-	}
-
-	protected void startMatch() {
-		gameMatch = new Match();
-		
-		// Check game state on deal for blackjacks
-		gameMatch.update(dealerHand, playerHand, false);
-		
-		lblDealerCardFirst.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + dealerHand.getCardFromHandByIndex(0).getImagePath())));
-		lblDealerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/blue_back.png")));
-		lblPlayerCardFirst.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(0).getImagePath())));
-		lblPlayerCardSecond.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(1).getImagePath())));
-		
-		updateGuiGameState();
-		
-	}
-	
-	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
-		for (int i = 0; i < 2; i++) {
-			hand.add(cardDeck.drawCard());
-		}
-	}
-
-	private JButton createHitButton() {
-		JButton btnHit = new JButton("HIT");
-		btnHit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Card cardToAdd = cardDeck.drawCard();
-				playerHand.addCard(cardToAdd);
-				gameMatch.update(dealerHand, playerHand, false);
-				updatePlayerHandGui();
-				updateGuiGameState();
-			}
-		});
-		btnHit.setVisible(false);
-		btnHit.setEnabled(false);
-		btnHit.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		return btnHit;
-	}
-
-	protected void updatePlayerHandGui() {
-		int cardGuiToUpdate = playerHand.getCardsInHand().size();
-		
-		switch (cardGuiToUpdate) {
-			case 3:
-				lblPlayerCardThird.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(2).getImagePath())));
-				break;
-			case 4:
-				lblPlayerCardFourth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(3).getImagePath())));
-				break;
-			case 5:
-				lblPlayerCardFifth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(4).getImagePath())));
-				break;
-			case 6:
-				lblPlayerCardSixth.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/" + playerHand.getCardFromHandByIndex(5).getImagePath())));
-				break;
-			default:
-				break;
-		}
-	}
-
-	protected void updateGuiGameState() {
-		switch (gameMatch.getGamestate()) {
-			case LOSE_DEALER_BLACKJACK:
-				lblIndicatorText.setText("Dealer has BLACKJACK! You lose!");
-				toggleHitAndStandVisibility(false);
-				revealDealerCards();
-				playerBank -= 1;
-				lblCurrentBankCount.setText(String.valueOf(playerBank));
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				//TODO reset displayed hand scores
-				break;
-			case PUSH_BLACKJACK:
-				lblIndicatorText.setText("You and Dealer have BLACKJACK! It's a push!");
-				toggleHitAndStandVisibility(false);
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case PUSH:
-				lblIndicatorText.setText("It's a push");
-				toggleHitAndStandVisibility(false);
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case WIN_PLAYER_BLACKJACK:
-				lblIndicatorText.setText("You have BLACKJACK! You win!");
-				toggleHitAndStandVisibility(false);
-				playerBank += 2;
-				lblCurrentBankCount.setText(String.valueOf(playerBank));
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case LOSE_PLAYER_BUSTS:
-				lblIndicatorText.setText("You busted! You lose!");
-				toggleHitAndStandVisibility(false);	
-				playerBank -= 1;
-				lblCurrentBankCount.setText(String.valueOf(playerBank));
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case LOSE_PLAYER_LOWER_SCORE:
-				lblIndicatorText.setText("Dealer wins! You lose!");
-				toggleHitAndStandVisibility(false);
-				playerBank -= 1;
-				lblCurrentBankCount.setText(String.valueOf(playerBank));
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case WIN_DEALER_BUSTS:
-				lblIndicatorText.setText("Dealer busts! You win!");
-				toggleHitAndStandVisibility(false);
-				playerBank += 1;
-				lblCurrentBankCount.setText(String.valueOf(playerBank));
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case WIN_DEALER_LOWER_SCORE:
-				lblIndicatorText.setText("You win!");
-				toggleHitAndStandVisibility(false);
-				playerBank += 1;
-				lblCurrentBankCount.setText(String.valueOf(playerBank));
-				revealDealerCards();
-				cardDeck.shuffle(playerHand, dealerHand);
-				evaluatePlayAgainOptions();
-				break;
-			case PLAYING:
-				lblIndicatorText.setText("Hit or Stand?");
-				break;
-		}
-		
-	}
-
-	private void toggleHitAndStandVisibility(boolean visible) {
-		btnStand.setEnabled(visible);
-		btnStand.setVisible(visible);
-		btnHit.setEnabled(visible);
-		btnHit.setVisible(visible);
-	}
-
-	private void evaluatePlayAgainOptions() {
-		if (playerBank > 0) {
-			btnDeal.setEnabled(true);
-			btnDeal.setVisible(true);
-			btnDeal.setText("Play Again?");
-		}
-	}
-
-	private void revealDealerCards() {
-		for (int i = 0; i < dealerHand.getCardsInHand().size(); i++) {
-			dealerCardLabels.get(i).setIcon(new ImageIcon(BlackjackGui.class.getResource(
-					"/blackjack/resources/" + dealerHand.getCardFromHandByIndex(i).getImagePath()))
-					);
-		}
-	}
-
-	private void resetHandsGui() {
-		lblDealerCardFirst.setIcon(null);
-		lblDealerCardSecond.setIcon(null);
-		lblDealerCardThird.setIcon(null);
-		lblDealerCardFourth.setIcon(null);
-		lblDealerCardFifth.setIcon(null);
-		lblDealerCardSixth.setIcon(null);
-		
-		lblPlayerCardFirst.setIcon(null);
-		lblPlayerCardSecond.setIcon(null);
-		lblPlayerCardThird.setIcon(null);
-		lblPlayerCardFourth.setIcon(null);
-		lblPlayerCardFifth.setIcon(null);
-		lblPlayerCardSixth.setIcon(null);
-		
-	}
-
 	private JPanel createGameButtonPanel() {
 		JPanel gameButtonPanel = new JPanel();
 		gameButtonPanel.setBackground(new Color(0, 128, 0));
@@ -542,12 +536,13 @@ public class BlackjackGui extends JFrame {
 
 	private JPanel createPlayerCardsPanel() {
 		JPanel playerCardsPanel = new JPanel();
+		playerCardsPanel.setBackground(new Color(0, 128, 0));
 		playerCardsPanel.setLayout(new GridLayout(1, 0, 0, 0));
 		return playerCardsPanel;
 	}
 
 	private JLabel createLabelPlayerPanelTitle() {
-		JLabel lblPlayerPanelTitle = new JLabel("Player Cards");
+		lblPlayerPanelTitle = new JLabel("Player Cards");
 		lblPlayerPanelTitle.setBorder(new EmptyBorder(10, 0, 10, 0));
 		lblPlayerPanelTitle.setForeground(new Color(255, 255, 255));
 		lblPlayerPanelTitle.setOpaque(true);
@@ -613,12 +608,13 @@ public class BlackjackGui extends JFrame {
 
 	private JPanel createDealerCardsPanel() {
 		JPanel dealerCardsPanel = new JPanel();
+		dealerCardsPanel.setBackground(new Color(0, 128, 0));
 		dealerCardsPanel.setLayout(new GridLayout(1, 0, 0, 0));
 		return dealerCardsPanel;
 	}
 
 	private JLabel createDealerPanelTitle() {
-		JLabel lblDealerPanelTitle = new JLabel("Dealer Cards");
+		lblDealerPanelTitle = new JLabel("Dealer Cards");
 		lblDealerPanelTitle.setBorder(new EmptyBorder(10, 0, 10, 0));
 		lblDealerPanelTitle.setOpaque(true);
 		lblDealerPanelTitle.setBackground(new Color(0, 128, 0));
