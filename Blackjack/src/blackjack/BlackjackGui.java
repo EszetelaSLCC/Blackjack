@@ -379,6 +379,8 @@ public class BlackjackGui extends JFrame {
 			btnDeal.setText("Play Again?");
 		}
 		else {
+			btnQuit.setEnabled(true);
+			btnQuit.setVisible(true);
 			lblIndicatorText.setText("Bankrupt!!! Thanks for playing!");
 		}
 	}
