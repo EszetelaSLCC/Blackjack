@@ -14,6 +14,11 @@ import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.awt.event.ActionEvent;
@@ -35,6 +40,7 @@ public class BlackjackGui extends JFrame {
 	private JButton btnStand;
 	private JButton btnHit;
 	private JButton btnDeal;
+	private JButton btnQuit;
 	private JLabel lblPlayerCardFirst;
 	private JLabel lblPlayerCardSecond;
 	private JLabel lblPlayerCardThird;
@@ -56,6 +62,8 @@ public class BlackjackGui extends JFrame {
 	private Hand playerHand;
 	private DealerHand dealerHand;
 	private Match gameMatch;
+	private JPanel gameButtonPanel_1;
+
 
 	/**
 	 * Launch the application.
@@ -127,12 +135,14 @@ public class BlackjackGui extends JFrame {
 				btnDeal.setEnabled(false);
 				btnDeal.setVisible(false);
 				toggleHitAndStandVisibility(true);
+				btnQuit.setEnabled(false);
+				btnQuit.setVisible(false);
 				
 				startMatch();
 				
 			}
 		});
-		btnDeal.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnDeal.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnDeal;
 	}
 
@@ -149,7 +159,7 @@ public class BlackjackGui extends JFrame {
 		});
 		btnHit.setVisible(false);
 		btnHit.setEnabled(false);
-		btnHit.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnHit.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnHit;
 	}
 	
@@ -199,8 +209,43 @@ public class BlackjackGui extends JFrame {
 		});
 		btnStand.setEnabled(false);
 		btnStand.setVisible(false);
-		btnStand.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnStand.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnStand;
+	}
+	
+	private JButton createQuitButton() {
+		btnQuit = new JButton("QUIT");
+		btnQuit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				File highScore = new File("src/blackjack/resources/highscore.txt");
+				if (highScore.exists()) {
+					// File exists.  Append new score.
+					try (FileWriter writer = new FileWriter(highScore, true); BufferedWriter bw = new BufferedWriter(writer)) {
+						bw.write("Player 1 score : " + playerBank);
+						bw.newLine();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				else {
+					// File does not exist.  Create.
+					try (PrintWriter writer = new PrintWriter(highScore); BufferedWriter bw = new BufferedWriter(writer)) {
+						bw.write("High Scores");
+						bw.newLine();
+						bw.write("-------------");
+						bw.newLine();
+						bw.write("Player 1 score : " + playerBank);
+						bw.newLine();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				contentPane.setVisible(false);
+				dispose();
+			}
+		});
+		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		return btnQuit;
 	}
 	
 	private static void dealHand(Deck cardDeck, ArrayList<Card> hand) {
@@ -329,9 +374,13 @@ public class BlackjackGui extends JFrame {
 		if (playerBank > 0) {
 			btnDeal.setEnabled(true);
 			btnDeal.setVisible(true);
-			btnDeal.setText("Play Again?");
+			btnQuit.setEnabled(true);
+			btnQuit.setVisible(true);
+			btnDeal.setText("PLAY AGAIN?");
 		}
 		else {
+			btnQuit.setEnabled(true);
+			btnQuit.setVisible(true);
 			lblIndicatorText.setText("Bankrupt!!! Thanks for playing!");
 		}
 	}
@@ -380,6 +429,9 @@ public class BlackjackGui extends JFrame {
 		
 		btnDeal = createDealButton();
 		gameButtonPanel.add(btnDeal);
+		
+		JButton btnQuit = createQuitButton();
+		gameButtonPanel_1.add(btnQuit);
 		
 		btnStand = createStandButton();
 		gameButtonPanel.add(btnStand);
@@ -472,11 +524,11 @@ public class BlackjackGui extends JFrame {
 	}
 
 	private JPanel createGameButtonPanel() {
-		JPanel gameButtonPanel = new JPanel();
-		gameButtonPanel.setBackground(new Color(0, 128, 0));
-		gameButtonPanel.setBorder(new EmptyBorder(60, 100, 60, 100));
-		gameButtonPanel.setLayout(new GridLayout(1, 0, 150, 0));
-		return gameButtonPanel;
+		gameButtonPanel_1 = new JPanel();
+		gameButtonPanel_1.setBackground(new Color(0, 128, 0));
+		gameButtonPanel_1.setBorder(new EmptyBorder(50, 80, 50, 80));
+		gameButtonPanel_1.setLayout(new GridLayout(1, 0, 90, 0));
+		return gameButtonPanel_1;
 	}
 
 	private JPanel createGameControlPanel() {
