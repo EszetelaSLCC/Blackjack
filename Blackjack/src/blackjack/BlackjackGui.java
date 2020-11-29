@@ -142,7 +142,7 @@ public class BlackjackGui extends JFrame {
 				
 			}
 		});
-		btnDeal.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnDeal.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnDeal;
 	}
 
@@ -159,12 +159,12 @@ public class BlackjackGui extends JFrame {
 		});
 		btnHit.setVisible(false);
 		btnHit.setEnabled(false);
-		btnHit.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnHit.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnHit;
 	}
 	
 	private JButton createStandButton() {
-		JButton btnStand = new JButton("Stand");
+		JButton btnStand = new JButton("STAND");
 		btnStand.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateDealerHandGui();
@@ -209,7 +209,7 @@ public class BlackjackGui extends JFrame {
 		});
 		btnStand.setEnabled(false);
 		btnStand.setVisible(false);
-		btnStand.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnStand.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnStand;
 	}
 	
@@ -244,7 +244,7 @@ public class BlackjackGui extends JFrame {
 				dispose();
 			}
 		});
-		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		return btnQuit;
 	}
 	
@@ -376,7 +376,7 @@ public class BlackjackGui extends JFrame {
 			btnDeal.setVisible(true);
 			btnQuit.setEnabled(true);
 			btnQuit.setVisible(true);
-			btnDeal.setText("Play Again?");
+			btnDeal.setText("PLAY AGAIN?");
 		}
 		else {
 			btnQuit.setEnabled(true);
@@ -526,8 +526,8 @@ public class BlackjackGui extends JFrame {
 	private JPanel createGameButtonPanel() {
 		gameButtonPanel_1 = new JPanel();
 		gameButtonPanel_1.setBackground(new Color(0, 128, 0));
-		gameButtonPanel_1.setBorder(new EmptyBorder(60, 100, 60, 100));
-		gameButtonPanel_1.setLayout(new GridLayout(1, 0, 150, 0));
+		gameButtonPanel_1.setBorder(new EmptyBorder(50, 80, 50, 80));
+		gameButtonPanel_1.setLayout(new GridLayout(1, 0, 90, 0));
 		return gameButtonPanel_1;
 	}
 
