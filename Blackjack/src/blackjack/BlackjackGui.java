@@ -65,6 +65,10 @@ public class BlackjackGui extends JFrame {
 	private Match gameMatch;
 	private JPanel gameButtonPanel_1;
 	private static String file;
+	private JPanel playerInfoPanel_1;
+	private static JLabel lblScore1Num = new JLabel();
+	private static JLabel lblScore2Num = new JLabel();
+	private static JLabel lblScore3Num = new JLabel();
 
 
 	/**
@@ -96,10 +100,13 @@ public class BlackjackGui extends JFrame {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		lblScore1Num.setText(top3Scores.get(0).toString());
+		lblScore2Num.setText(top3Scores.get(1).toString());
+		lblScore3Num.setText(top3Scores.get(2).toString());
 	}
 
 	/**
-	 * Constructs the Blackjack game interface for intial game state.
+	 * Constructs the Blackjack game interface for initial game state.
 	 */
 	public BlackjackGui() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,6 +124,7 @@ public class BlackjackGui extends JFrame {
 		
 		createAvatarPanel(playerInfoPanel);
 		createBankPanel(playerInfoPanel);
+		createHighScorePanel(playerInfoPanel);
 
 		JPanel gameTablePanel = createGamePanelComponents();
 		contentPane.add(gameTablePanel, BorderLayout.CENTER);
@@ -733,6 +741,45 @@ public class BlackjackGui extends JFrame {
 		lblCurrentBankCount.setFont(new Font("Tahoma", Font.PLAIN, 48));
 	}
 
+	private void createHighScorePanel(JPanel playerInfoPanel) {
+		JPanel highScorePanel = new JPanel();
+		highScorePanel.setForeground(new Color(0, 0, 0));
+		highScorePanel.setBackground(new Color(119, 136, 153));
+		highScorePanel.setLayout(new GridLayout(7, 0, 0, 0));
+		playerInfoPanel.add(highScorePanel);
+		
+		JLabel lblHighScoreText = new JLabel("High Scores:");
+		setHighScoreText(lblHighScoreText);
+		highScorePanel.add(lblHighScoreText);
+		
+		JLabel lblScore1Text = new JLabel("First Place");
+		setHighScoreText(lblScore1Text);
+		highScorePanel.add(lblScore1Text);
+		
+		setHighScoreText(lblScore1Num);
+		highScorePanel.add(lblScore1Num);
+		
+		JLabel lblScore2Text = new JLabel("Second Place");
+		setHighScoreText(lblScore2Text);
+		highScorePanel.add(lblScore2Text);
+		
+		setHighScoreText(lblScore2Num);
+		highScorePanel.add(lblScore2Num);
+		
+		JLabel lblScore3Text = new JLabel("Third Place");
+		setHighScoreText(lblScore3Text);
+		highScorePanel.add(lblScore3Text);
+		
+		setHighScoreText(lblScore3Num);
+		highScorePanel.add(lblScore3Num);
+	}
+
+	private void setHighScoreText(JLabel lblHighScoreText) {
+		lblHighScoreText.setHorizontalAlignment(SwingConstants.CENTER);
+		lblHighScoreText.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblHighScoreText.setForeground(new Color(255, 255, 240));
+	}
+
 	private void createAvatarPanel(JPanel playerInfoPanel) {
 		JPanel avatarPanel = new JPanel();
 		avatarPanel.setBackground(new Color(119, 136, 153));
@@ -741,7 +788,7 @@ public class BlackjackGui extends JFrame {
 		avatarPanel.setLayout(new GridLayout(2, 0, 0, 2));
 		
 		JLabel lblPlayerAvatarImage = new JLabel("");
-		lblPlayerAvatarImage.setBorder(new EmptyBorder(50, 0, 0, 0));
+		lblPlayerAvatarImage.setBorder(new EmptyBorder(25, 0, 0, 0));
 		lblPlayerAvatarImage.setHorizontalAlignment(SwingConstants.CENTER);
 		avatarPanel.add(lblPlayerAvatarImage);
 		lblPlayerAvatarImage.setIcon(new ImageIcon(BlackjackGui.class.getResource("/blackjack/resources/default_avatar_126x126.png")));
@@ -755,11 +802,11 @@ public class BlackjackGui extends JFrame {
 	}
 
 	private JPanel createPlayerInfoPanel() {
-		JPanel playerInfoPanel = new JPanel();
-		playerInfoPanel.setBackground(new Color(119, 136, 153));
-		playerInfoPanel.setBorder(new EmptyBorder(100, 10, 0, 10));
-		playerInfoPanel.setLayout(new GridLayout(2, 0, 0, 10));
-		return playerInfoPanel;
+		playerInfoPanel_1 = new JPanel();
+		playerInfoPanel_1.setBackground(new Color(119, 136, 153));
+		playerInfoPanel_1.setBorder(new EmptyBorder(100, 10, 0, 10));
+		playerInfoPanel_1.setLayout(new GridLayout(3, 0, 0, 10));
+		return playerInfoPanel_1;
 	}
 
 	private JLabel createGameTitleLabel() {
