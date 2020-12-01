@@ -2,7 +2,6 @@ package blackjack;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -16,11 +15,12 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Scanner;
 import java.awt.event.ActionEvent;
 
 /**
@@ -59,10 +59,12 @@ public class BlackjackGui extends JFrame {
 	private int playerBank = 10;
 	private static ArrayList<Card> playerInitialHand = new ArrayList<>();
 	private static ArrayList<Card> dealerInitialHand = new ArrayList<>();
+	private static ArrayList<Integer> top3Scores = new ArrayList<>();
 	private Hand playerHand;
 	private DealerHand dealerHand;
 	private Match gameMatch;
 	private JPanel gameButtonPanel_1;
+	private static String file;
 
 
 	/**
@@ -80,6 +82,20 @@ public class BlackjackGui extends JFrame {
 			}
 		});
 		
+		file = "src/blackjack/resources/high_scores.txt";
+		
+		try(Scanner reader = new Scanner(new File(file))) {
+			while(reader.hasNextLine()) {
+				String line = reader.nextLine();
+				
+				if (line != null) {
+					int readInScore = Integer.parseInt(line);
+					top3Scores.add(readInScore);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -217,31 +233,36 @@ public class BlackjackGui extends JFrame {
 		btnQuit = new JButton("QUIT");
 		btnQuit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				File highScore = new File("src/blackjack/resources/highscore.txt");
-				if (highScore.exists()) {
-					// File exists.  Append new score.
-					try (FileWriter writer = new FileWriter(highScore, true); BufferedWriter bw = new BufferedWriter(writer)) {
-						bw.write("Player 1 score : " + playerBank);
-						bw.newLine();
-					} catch (IOException e) {
-						e.printStackTrace();
+				boolean added = false;
+				int count = 0;
+				
+				while (!added && count < 3) {
+					if (playerBank >= top3Scores.get(count)) {
+						top3Scores.add(playerBank);
+						added = true;
 					}
+					count++;
 				}
-				else {
-					// File does not exist.  Create.
-					try (PrintWriter writer = new PrintWriter(highScore); BufferedWriter bw = new BufferedWriter(writer)) {
-						bw.write("High Scores");
+				
+				Collections.sort(top3Scores, Collections.reverseOrder());
+				
+				if (top3Scores.size() > 3) {
+					top3Scores.remove(top3Scores.size() - 1);
+				}
+				
+				try (PrintWriter writer = new PrintWriter(file); BufferedWriter bw = new BufferedWriter(writer)) {
+					for (int i = 0; i < 3; i++) {
+						bw.write("" + top3Scores.get(i));
 						bw.newLine();
-						bw.write("-------------");
-						bw.newLine();
-						bw.write("Player 1 score : " + playerBank);
-						bw.newLine();
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
+					
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				contentPane.setVisible(false);
-				dispose();
+			
+			
+			contentPane.setVisible(false);
+			dispose();
 			}
 		});
 		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 16));
