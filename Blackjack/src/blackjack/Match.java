@@ -63,7 +63,7 @@ public class Match {
 		}
 		else if (playerStand)
 			// Player standing.  Dealer logic.
-			if (dealerHand.getHandScore() >= 18)
+			if (!((DealerHand) dealerHand).dealerCanHit())
 				// Dealer standing.  Game over.  Evaluate who won.
 				if (playerHand.getHandScore() == dealerHand.getHandScore())
 					gameState = GameState.PUSH;
