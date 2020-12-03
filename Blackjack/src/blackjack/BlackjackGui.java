@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
 
@@ -153,7 +154,8 @@ public class BlackjackGui extends JFrame {
 				dealerHand = new DealerHand(0, dealerInitialHand);
 				
 				// resets images for the cards in dealer and player hands in gui to match table and appear empty again.
-				resetHandsGui();
+				resetHandsGui(dealerCardLabels);
+				resetHandsGui(playerCardLabels);
 				
 				lblIndicatorText.setText("Game Begins!");
 				btnDeal.setEnabled(false);
@@ -422,14 +424,22 @@ public class BlackjackGui extends JFrame {
 		}
 	}
 
-	private void resetHandsGui() {
-		for (int i = 0; i < dealerCardLabels.size(); i++) {
-			dealerCardLabels.get(i).setIcon(null);
+	private void resetHandsGui(List<?> list) {
+		
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) instanceof JLabel) {
+				((JLabel) list.get(i)).setIcon(null);
+			}
+			
 		}
 		
-		for (int i = 0; i < playerCardLabels.size(); i++) {
-			playerCardLabels.get(i).setIcon(null);
-		}
+//		for (int i = 0; i < dealerCardLabels.size(); i++) {
+//			dealerCardLabels.get(i).setIcon(null);
+//		}
+//		
+//		for (int i = 0; i < playerCardLabels.size(); i++) {
+//			playerCardLabels.get(i).setIcon(null);
+//		}
 	}
 	
 	private JPanel createGamePanelComponents() {
