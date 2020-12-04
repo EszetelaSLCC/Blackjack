@@ -38,6 +38,12 @@ public class Hand {
 		return cardsInHand;
 	}
 	
+	/**
+	 * Returns specific card from Hand instance based on passed integer for index.
+	 * 
+	 * @param index - int
+	 * @return Card
+	 */
 	public Card getCardFromHandByIndex(int index) {
 		return cardsInHand.get(index);
 	}
