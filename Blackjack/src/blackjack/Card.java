@@ -62,7 +62,7 @@ public class Card {
 	}
 
 	/**
-	 * Returns a string representation of the playing card.  
+	 * Returns a string representation of the playing card. Method for debugging only.
 	 */
 	@Override
 	public String toString() {

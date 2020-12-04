@@ -432,14 +432,6 @@ public class BlackjackGui extends JFrame {
 			}
 			
 		}
-		
-//		for (int i = 0; i < dealerCardLabels.size(); i++) {
-//			dealerCardLabels.get(i).setIcon(null);
-//		}
-//		
-//		for (int i = 0; i < playerCardLabels.size(); i++) {
-//			playerCardLabels.get(i).setIcon(null);
-//		}
 	}
 	
 	private JPanel createGamePanelComponents() {
