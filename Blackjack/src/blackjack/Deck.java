@@ -57,6 +57,11 @@ public class Deck {
 		Collections.shuffle(cardDeck);
 	}
 	
+	/**
+	 * Returns size of cardDeck array list.
+	 * 	
+	 * @return int
+	 */
 	public int getSize() {
 		return cardDeck.size();
 	}
@@ -79,6 +84,7 @@ public class Deck {
 	/**
 	 * Prints a test output of the card deck.  Each card will be printed on a separate
 	 * line then the number of cards will be printed.
+	 * Method for debugging only.
 	 */
 	public void printDeck() {
 		cardDeck.forEach(c -> {

@@ -61,6 +61,12 @@ public class Hand {
 		return handScore;
 	}
 
+	/**
+	 * Calculates value of cards in the hand and accounts for whether to treat 
+	 * ace(s) as 1 point or 11 points based on whether it would cause player
+	 * to bust by going over 21 for handScore. Updates handScore with calculated
+	 * value.
+	 */
 	protected void calculateHandScore() {
 		handScore = 0;
 		int acesInHand = 0;
@@ -84,6 +90,11 @@ public class Hand {
 		}
 	}
 
+	/**
+	 * Returns formatted string for the cards in hand by looping through
+	 * <code>cardsInHand</code> and printing out face and suit values.
+	 * Method for debugging only.
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
